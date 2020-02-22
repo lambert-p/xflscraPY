@@ -13,17 +13,24 @@ def calculate_num_games():
 def fetch_pbp(url):
     """
     Attempts to get the content at `url' by making an HTTP GET request.
-    If the content-type of response is HTML/XML return content; otherwise
-    return None.
+    If the content-type of response is valid, process and return it; 
+    otherwise return None.
     """
 
     try:
         with closing(get(url, stream=True)) as resp:
             if is_good_response(resp):
                 resp = resp.text
+
+                # our JSON PBP data is stored in a JavaScript var playList
                 start = resp.find('playList = ') + len('playList = ')
                 end = resp.find('</script>', start)
+
+                # substring and clean the JSON before returning
                 live_stats = resp[start:end]
+                live_stats = live_stats.strip()
+                live_stats = live_stats[:-1]
+
                 return live_stats
             else:
                 return None
@@ -53,7 +60,8 @@ def main():
         print("We're getting the data for Match %d" % (match))
         url = "https://stats.xfl.com/" + str(match)
         data = fetch_pbp(url)
-        print(data)
+        json_data = json.loads(data)
+        print(json_data)
 
 if __name__ == '__main__':
     main()
