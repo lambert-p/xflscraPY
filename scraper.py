@@ -19,7 +19,7 @@ def calculate_num_games():
     TODO Actually make this robust. Just worried about getting the
     data processing working for now.
     """
-    return 8
+    return 12
 
 def fetch_pbp(url):
     """
