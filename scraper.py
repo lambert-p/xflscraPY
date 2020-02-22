@@ -27,11 +27,11 @@ def fetch_pbp(url):
                 end = resp.find('</script>', start)
 
                 # substring and clean the JSON before returning
-                live_stats = resp[start:end]
-                live_stats = live_stats.strip()
-                live_stats = live_stats[:-1]
+                pbp = resp[start:end]
+                pbp = pbp.strip()
+                pbp = pbp[:-1]
 
-                return live_stats
+                return json.loads(pbp)
             else:
                 return None
 
@@ -59,8 +59,7 @@ def main():
     for match in range(1, num_games+1):
         print("We're getting the data for Match %d" % (match))
         url = "https://stats.xfl.com/" + str(match)
-        data = fetch_pbp(url)
-        json_data = json.loads(data)
+        json_data = fetch_pbp(url)
         print(json_data)
 
 if __name__ == '__main__':
