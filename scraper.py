@@ -1,3 +1,14 @@
+"""
+scraper.py
+
+Script scrapes XFL play-by-play data from their website,
+and formats it into an identical form as nflscrapR does for
+NFL data. For use by hobbyists wishing to do statistical
+analysis on XFL data.
+
+@author Paul Lambert <paul dot lambert at linux dot com>
+
+"""
 from requests import get
 from requests.exceptions import RequestException
 from contextlib import closing
@@ -13,7 +24,7 @@ def calculate_num_games():
 def fetch_pbp(url):
     """
     Attempts to get the content at `url' by making an HTTP GET request.
-    If the content-type of response is valid, process and return it; 
+    If the content-type of response is valid, process and return it as JSON; 
     otherwise return None.
     """
 
@@ -29,7 +40,7 @@ def fetch_pbp(url):
                 # substring and clean the JSON before returning
                 pbp = resp[start:end]
                 pbp = pbp.strip()
-                pbp = pbp[:-1]
+                pbp = pbp[:-1] # remove trailing semicolon from the JS
 
                 return json.loads(pbp)
             else:
@@ -51,7 +62,17 @@ def is_good_response(resp):
 
 def log_error(e):
     print(e)
+
+def format_json_for_csv(json_data):
+    """
+    Attempts to mimic the format used by the very popular package
+    for providing NFL CSVs, nflscrapR. 
+
+    Converts the play by play data from scraped JSON into CSV
     
+    See https://github.com/maksimhorowitz/nflscrapR for more information
+    """
+    return json_data
 
 def main():
     num_games = calculate_num_games()
@@ -61,6 +82,7 @@ def main():
         url = "https://stats.xfl.com/" + str(match)
         json_data = fetch_pbp(url)
         print(json_data)
+        csv_data = format_json_for_csv(json_data)
 
 if __name__ == '__main__':
     main()
