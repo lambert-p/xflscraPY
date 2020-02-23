@@ -1,5 +1,5 @@
 """
-scraper.py
+scra.py
 
 Script scrapes XFL play-by-play data from their website,
 and formats it into an identical form as nflscrapR does for
@@ -12,7 +12,9 @@ analysis on XFL data.
 from requests import get
 from requests.exceptions import RequestException
 from contextlib import closing
+
 import json
+import pandas as pd
 
 def calculate_num_games():
     """
@@ -72,16 +74,28 @@ def format_json_for_csv(json_data):
     
     See https://github.com/maksimhorowitz/nflscrapR for more information
     """
-    return json_data
+
+    # print("Match is ", json_data['awayClubCode'] ," @ ", json_data['homeClubCode'])
+    # for play in json_data["plays"]:
+    #     print(play['PlayDescription'])
+
+    df = pd.json_normalize(json_data["plays"])
+    df.to_csv("play_by_play_data/pbp_2020.csv", mode='a', header=True)
+    # return json_data
 
 def main():
     num_games = calculate_num_games()
 
     for match in range(1, num_games+1):
-        print("We're getting the data for Match %d" % (match))
+        #print("We're getting the data for Match %d" % (match))
         url = "https://stats.xfl.com/" + str(match)
         json_data = fetch_pbp(url)
-        print(json_data)
+
+        if json_data["plays"] == []:
+            print("game hasn't yet been played")
+            break
+        
+        # print(json_data)
         csv_data = format_json_for_csv(json_data)
 
 if __name__ == '__main__':
